@@ -1,0 +1,12 @@
+{
+  "name": "cLogger",
+  "version": "1.0.0",
+  "description": "logging module for nodejs using comments",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Mohsen Dorparasti (dorparasti[at]gmail[dot]com)",
+  "license": "MIT"
+}
