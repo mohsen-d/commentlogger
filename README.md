@@ -4,6 +4,8 @@ commentlogger enables developers to move their debugging console.log() out of th
 
 ## usage
 
+install using `npm i commentlogger`
+
     const logger = require('commentlogger');
     logger.watch(
         module content ...
