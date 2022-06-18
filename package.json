@@ -4,9 +4,13 @@
   "description": "logging module for nodejs using comments",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "Mohsen Dorparasti",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^28.1.1",
+    "rewire": "^6.0.0"
+  }
 }

@@ -2,16 +2,17 @@
 
 commentlogger enables developers to move their debugging console.log() out of their code and into the comments, resulting in a cleaner code.
 
-## usage
+# installing
 
 install using `npm i commentlogger`
 
-    const logger = require('commentlogger');
-    logger.watch(
-        module content ...
-    )();
+## using
 
-usage is simple:
+    const logger = require('commentlogger');
+    logger.watch(() => {
+        module content ...
+    })();
+
 wherever a log is required, add a `//` , then add `log(variable, env)`
 
 The following logs `sum` when `NODE_ENV` is set to `dev`:
@@ -22,7 +23,11 @@ This one will run if the environment is set to `prod`:
 
     const result = calculateSomething(); // log(result, prod)
 
-`env` can also be `all`. In that case logging will be done regardless of `NODE_ENV` value;
+Multiple `env` can be set:
+
+    const result = calculateSomething(); // log(result, dev, test)
+
+if `env` is not provided, logging will be done regardless of `NODE_ENV` value;
 
 ## Roadmap
 
