@@ -16,7 +16,7 @@ function insertLogsInto(content) {
 
 function getLogCommentsFrom(content) {
   const logComments = [];
-  const regex = /(?:\/\/)(?:\s*)log\(([^\)]*)(?:\))?/g;
+  const regex = /(?:\/\/)(?:\s*)log(?:\s*)\(([^\)]*)(?:\))?/g;
   const matches = [...content.matchAll(regex)];
   for (const match of matches) {
     const [variable, ...envs] = match[1].split(",").map((p) => p.trim());
@@ -30,7 +30,8 @@ function getLogCommentsFrom(content) {
 }
 
 function currentENVExistsIn(envs) {
-  if (envs.some((e) => e == process.env.NODE_ENV || e == "all")) return true;
+  if (envs.length == 0 || envs.some((e) => e == process.env.NODE_ENV))
+    return true;
 }
 
 function addTheLoggingCode(content, logComment) {
