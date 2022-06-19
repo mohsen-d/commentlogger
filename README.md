@@ -2,7 +2,7 @@
 
 commentlogger enables developers to move their debugging console.log() out of their code and into the comments, resulting in a cleaner code.
 
-# installing
+## installing
 
 install using `npm i commentlogger`
 
@@ -29,6 +29,17 @@ Multiple `env` can be set:
 
 if `env` is not provided, logging will be done regardless of `NODE_ENV` value;
 
-## Roadmap
+    const sum = 3 + 2; // log(sum)
 
-- adding other logging options beside console.log
+It is not limited to logging variables. You can put messages to be logged
+
+    throw new Error("something went wrong"); // log("an error occurred");
+
+## define custom logging behavior
+
+By default, console.log is used by the library. But it can be replaced using `setLoggingFunction()`
+
+    const logger = require('commentlogger');
+    logger.setLoggingFunction((msg) => console.error(msg));
+
+This can be used to write logs to a file or sent to an email.
