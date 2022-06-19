@@ -4,7 +4,7 @@
   "description": "logging module for nodejs using comments",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --silent=false"
   },
   "keywords": [],
   "author": "Mohsen Dorparasti",

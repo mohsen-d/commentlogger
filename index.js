@@ -1,7 +1,14 @@
 module.exports.watch = function watch(moduleContent) {
-  content = moduleContent.toString();
-  return eval(insertLogsInto(content))();
+  const content = moduleContent.toString();
+  const loggedContent = insertLogsInto(content);
+  return eval(loggedContent)();
 };
+
+module.exports.setLoggingFunction = function setLoggingFunction(func) {
+  loggingFunction = func;
+};
+
+let loggingFunction = (variable) => console.log(variable);
 
 function insertLogsInto(content) {
   const logComments = getLogCommentsFrom(content);
@@ -35,12 +42,43 @@ function currentENVExistsIn(envs) {
 }
 
 function addTheLoggingCode(content, logComment) {
-  return content.replace(
-    logComment.fullComment,
-    buildTheLoggingCode(logComment.variableToLog)
-  );
+  const loggingCode = buildTheLoggingCode(logComment.variableToLog);
+  if (!loggingCode) return content;
+  return content.replace(logComment.fullComment, loggingCode);
 }
 
 function buildTheLoggingCode(variable) {
-  return `console.log(${variable});`;
+  const functionBodyStr = loggingFunction.toString().trim();
+
+  if (functionBodyStr == "") return undefined;
+
+  let functionBody = getLoggingFunctionBody(functionBodyStr);
+  let param = getLoggingFunctionParam(functionBodyStr);
+
+  if (param) {
+    const t = "\\b" + param + "\\b";
+    const replacingRegex = new RegExp(t, "g");
+
+    functionBody = functionBody.replace(replacingRegex, variable);
+  }
+
+  return functionBody;
+}
+
+function getLoggingFunctionBody(functionBodyStr) {
+  const functionBodyRegex = /(?:{|(?:>\s*{)|>)(([\s|\S]*)(?=[\}|\n]))/gm;
+
+  if (!functionBodyStr.endsWith("}")) functionBodyStr += "\n";
+
+  const matches = [...functionBodyStr.matchAll(functionBodyRegex)];
+  return matches[0][2];
+}
+
+function getLoggingFunctionParam(functionBodyStr) {
+  const paramRegex = /(?<=\(*\s*)(\b[\w]*\b)(?=\s*\)*\s*[=|{])/;
+  if (paramRegex.test(functionBodyStr)) {
+    const matches = [...functionBodyStr.match(paramRegex)];
+    return matches[1];
+  }
+  return undefined;
 }
