@@ -1,13 +1,34 @@
 {
   "name": "commentlogger",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "logging module for nodejs using comments",
   "main": "index.js",
   "scripts": {
     "test": "jest --silent=false"
   },
-  "keywords": [],
-  "author": "Mohsen Dorparasti",
+  "keywords": [
+    "logging",
+    "logger",
+    "debugging",
+    "debuger"
+  ],
+  "files": [
+    "LICENSE",
+    "Readme.md",
+    "index.js"
+  ],
+  "author": {
+    "name": "Mohsen Dorparasti",
+    "email": "dorparasti@gmail.com"
+  },
+  "homepage": "https://github.com/mohsen-d/commentlogger",
+  "bugs": {
+    "url": "https://github.com/mohsen-d/commentlogger/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohsen-d/commentlogger.git"
+  },
   "license": "MIT",
   "devDependencies": {
     "jest": "^28.1.1",
