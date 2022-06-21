@@ -26,7 +26,7 @@ test("log(var, dev) should be uncommented in dev env", () => {
     // log(x, dev)
   });
   expect(result.toString().includes("// log(x, dev)")).toBe(false);
-  expect(result.toString().includes("console.log(x)")).toBe(true);
+  expect(result.toString().includes("commentloggerFunc(x)")).toBe(true);
 });
 
 test("multiple env values should work", () => {
@@ -35,7 +35,7 @@ test("multiple env values should work", () => {
     // log(x, dev, prod)
   });
   expect(result.toString().includes("// log(x, dev, prod)")).toBe(false);
-  expect(result.toString().includes("console.log(x)")).toBe(true);
+  expect(result.toString().includes("commentloggerFunc(x)")).toBe(true);
 });
 
 test("spaces should be ignored", () => {
@@ -44,7 +44,7 @@ test("spaces should be ignored", () => {
     //   log ( x, dev )
   });
   expect(result.toString().includes("//   log ( x, dev )")).toBe(false);
-  expect(result.toString().includes("console.log(x)")).toBe(true);
+  expect(result.toString().includes("commentloggerFunc(x)")).toBe(true);
 });
 
 test("shall be uncommented if env is not provided", () => {
@@ -54,29 +54,35 @@ test("shall be uncommented if env is not provided", () => {
     const x = 1 + 2; // log (x)
   });
   expect(result.toString().includes("// log (x)")).toBe(false);
-  expect(result.toString().includes("console.log(x)")).toBe(true);
+  expect(result.toString().includes("commentloggerFunc(x)")).toBe(true);
 });
 
 test("custom logging arrow function should work", () => {
   setEnvTo("dev");
-  commentlogger.setLoggingFunction((v) => console.error(v));
-  const result = commentlogger.watch(() => {
-    const x = 1 + 2; // log (x)
-  });
+
+  const result = commentlogger.watch(
+    () => {
+      const x = 1 + 2; // log (x)
+    },
+    (v) => console.error(v)
+  );
   expect(result.toString().includes("// log (x)")).toBe(false);
-  expect(result.toString().includes("console.error(x)")).toBe(true);
+  expect(result.toString().includes("commentloggerFunc(x)")).toBe(true);
 });
 
 test("custom logging function definition should work", () => {
   setEnvTo("dev");
-  commentlogger.setLoggingFunction(function (v) {
-    console.error(v);
-  });
-  const result = commentlogger.watch(() => {
-    const x = 1 + 2; // log (x)
-  });
+
+  const result = commentlogger.watch(
+    () => {
+      const x = 1 + 2; // log (x)
+    },
+    function (v) {
+      console.error(v);
+    }
+  );
   expect(result.toString().includes("// log (x)")).toBe(false);
-  expect(result.toString().includes("console.error(x)")).toBe(true);
+  expect(result.toString().includes("commentloggerFunc(x)")).toBe(true);
 });
 
 test("custom logging function reference should work", () => {
@@ -84,47 +90,50 @@ test("custom logging function reference should work", () => {
   const logFunc = function (v) {
     console.error(v);
   };
-  commentlogger.setLoggingFunction(logFunc);
+
   const result = commentlogger.watch(() => {
     const x = 1 + 2; // log (x)
-  });
+  }, logFunc);
   expect(result.toString().includes("// log (x)")).toBe(false);
-  expect(result.toString().includes("console.error(x)")).toBe(true);
+  expect(result.toString().includes("commentloggerFunc(x)")).toBe(true);
 });
 
 test("custom logging arrow function without param should work", () => {
   setEnvTo("dev");
-  commentlogger.setLoggingFunction(() =>
-    console.error("something went wrong!")
+
+  const result = commentlogger.watch(
+    () => {
+      const x = 1 + 2; // log (x)
+    },
+    () => console.error("something went wrong!")
   );
-  const result = commentlogger.watch(() => {
-    const x = 1 + 2; // log (x)
-  });
   expect(result.toString().includes("// log (x)")).toBe(false);
-  expect(
-    result.toString().includes('console.error("something went wrong!")')
-  ).toBe(true);
+  expect(result.toString().includes("commentloggerFunc()")).toBe(true);
 });
 
 test("custom logging function definition without parameter should work", () => {
   setEnvTo("dev");
-  commentlogger.setLoggingFunction(function () {
-    console.error("something went wrong!");
-  });
-  const result = commentlogger.watch(() => {
-    const x = 1 + 2; // log (x)
-  });
+
+  const result = commentlogger.watch(
+    () => {
+      const x = 1 + 2; // log (x)
+    },
+    function () {
+      console.error("something went wrong!");
+    }
+  );
   expect(result.toString().includes("// log (x)")).toBe(false);
-  expect(
-    result.toString().includes('console.error("something went wrong!")')
-  ).toBe(true);
+  expect(result.toString().includes("commentloggerFunc()")).toBe(true);
 });
 
-test("custom logging function definition without body should leave the log commented", () => {
+test("custom logging function definition without body should work", () => {
   setEnvTo("dev");
-  commentlogger.setLoggingFunction(function () {});
-  const result = commentlogger.watch(() => {
-    const x = 1 + 2; // log (x)
-  });
-  expect(result.toString().includes("// log (x)")).toBe(true);
+
+  const result = commentlogger.watch(
+    () => {
+      const x = 1 + 2; // log (x)
+    },
+    function () {}
+  );
+  expect(result.toString().includes("commentloggerFunc()")).toBe(true);
 });

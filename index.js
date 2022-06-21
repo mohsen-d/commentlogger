@@ -1,14 +1,23 @@
-module.exports.watch = function watch(moduleContent) {
-  const content = moduleContent.toString();
+module.exports.watch = function watch(
+  moduleContent,
+  loggingFunction = undefined
+) {
+  setLoggingFunction(loggingFunction);
+  const content = cleanModuleContent(moduleContent);
   const loggedContent = insertLogsInto(content);
   return eval(loggedContent)();
 };
 
-module.exports.setLoggingFunction = function setLoggingFunction(func) {
-  loggingFunction = func;
-};
+function setLoggingFunction(func) {
+  this.commentloggerFunc = func ? func : (msg) => console.log(msg);
+}
 
-let loggingFunction = (variable) => console.log(variable);
+function cleanModuleContent(moduleContent) {
+  let content = moduleContent.toString();
+  content = content.replace("() => {", "");
+  content = content.substring(0, content.lastIndexOf("}"));
+  return content;
+}
 
 function insertLogsInto(content) {
   const logComments = getLogCommentsFrom(content);
@@ -18,7 +27,8 @@ function insertLogsInto(content) {
       content = addTheLoggingCode(content, logComment);
     }
   }
-  return "(function(){ return(" + content + ")})";
+
+  return "() => {return function(){" + content + "}}";
 }
 
 function getLogCommentsFrom(content) {
@@ -26,10 +36,10 @@ function getLogCommentsFrom(content) {
   const regex = /(?:\/\/)(?:\s*)log(?:\s*)\(([^\)]*)(?:\))?/g;
   const matches = [...content.matchAll(regex)];
   for (const match of matches) {
-    const [variable, ...envs] = match[1].split(",").map((p) => p.trim());
+    const [msg, ...envs] = match[1].split(",").map((p) => p.trim());
     logComments.push({
       fullComment: match[0],
-      variableToLog: variable,
+      msgToLog: msg,
       environments: envs,
     });
   }
@@ -42,39 +52,21 @@ function currentENVExistsIn(envs) {
 }
 
 function addTheLoggingCode(content, logComment) {
-  const loggingCode = buildTheLoggingCode(logComment.variableToLog);
+  const loggingCode = buildTheLoggingCode(logComment.msgToLog);
   if (!loggingCode) return content;
   return content.replace(logComment.fullComment, loggingCode);
 }
 
-function buildTheLoggingCode(variable) {
-  const functionBodyStr = loggingFunction.toString().trim();
-
-  if (functionBodyStr == "") return undefined;
-
-  let functionBody = getLoggingFunctionBody(functionBodyStr);
-  let param = getLoggingFunctionParam(functionBodyStr);
-
+function buildTheLoggingCode(msg) {
+  const param = getLoggingFunctionParam();
   if (param) {
-    const t = "\\b" + param + "\\b";
-    const replacingRegex = new RegExp(t, "g");
-
-    functionBody = functionBody.replace(replacingRegex, variable);
-  }
-
-  return functionBody;
+    const t = `commentloggerFunc(${msg});`;
+    return t;
+  } else return "commentloggerFunc();";
 }
 
-function getLoggingFunctionBody(functionBodyStr) {
-  const functionBodyRegex = /(?:{|(?:>\s*{)|>)(([\s|\S]*)(?=[\}|\n]))/gm;
-
-  if (!functionBodyStr.endsWith("}")) functionBodyStr += "\n";
-
-  const matches = [...functionBodyStr.matchAll(functionBodyRegex)];
-  return matches[0][2];
-}
-
-function getLoggingFunctionParam(functionBodyStr) {
+function getLoggingFunctionParam() {
+  const functionBodyStr = this.commentloggerFunc.toString();
   const paramRegex = /(?<=\(*\s*)(\b[\w]*\b)(?=\s*\)*\s*[=|{])/;
   if (paramRegex.test(functionBodyStr)) {
     const matches = [...functionBodyStr.match(paramRegex)];
